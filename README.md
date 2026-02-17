@@ -68,17 +68,6 @@ src/
 │   └── mockData.js
 └── App.jsx               # Main application component
 ```
-
-### Demo Credentials
-```javascript
-// Student Account
-Email: john.doe@university.edu
-Password: password123
-
-// Admin Account
-Email: admin@university.edu
-Password: admin123
-```
 ## 🚀 Deployment
 
 ### Build for Production
