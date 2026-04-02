@@ -127,10 +127,10 @@ const login = async (req, res) => {
     // Find user with role
     const user = await User.findOne({
       where: { email },
-      include: [{
-        model: Role,
-        as: 'role'
-      }]
+      include: [
+        { model: Role, as: 'role' },
+        { model: Student, as: 'student' }
+      ]
     });
 
     if (!user) {

@@ -20,6 +20,8 @@ import ProfilePage from '../pages/student/ProfilePage';
 import ScholarshipsPage from '../pages/student/ScholarshipsPage';
 import ScholarshipDetailPage from '../pages/student/ScholarshipDetailPage';
 import ApplicationsPage from '../pages/student/ApplicationsPage';
+import ApplicationDetailPage from '../pages/student/ApplicationDetailPage';
+import ApplicationEditPage from '../pages/student/ApplicationEditPage';
 
 // Admin Pages
 import UsersManagement from '../pages/admin/UsersManagement';
@@ -138,6 +140,28 @@ const AppRoutes = () => {
           <ProtectedRoute>
             <Layout>
               <ApplicationsPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/applications/:id"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <ApplicationDetailPage />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/applications/:id/edit"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <ApplicationEditPage />
             </Layout>
           </ProtectedRoute>
         }

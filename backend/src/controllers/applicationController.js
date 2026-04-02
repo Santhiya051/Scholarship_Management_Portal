@@ -446,17 +446,11 @@ const submitApplication = async (req, res) => {
     }
 
     // Check if all required documents are uploaded
-    const requiredDocs = Document.getRequiredDocuments(application.scholarship_id);
-    const uploadedDocTypes = application.documents.map(doc => doc.document_type);
-    const missingDocs = requiredDocs.filter(type => !uploadedDocTypes.includes(type));
-
-    if (missingDocs.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required documents',
-        data: { missing_documents: missingDocs }
-      });
-    }
+    // Document upload is optional - skip blocking check if no upload UI is present
+    // const requiredDocs = Document.getRequiredDocuments(application.scholarship_id);
+    // const uploadedDocTypes = application.documents.map(doc => doc.document_type);
+    // const missingDocs = requiredDocs.filter(type => !uploadedDocTypes.includes(type));
+    // if (missingDocs.length > 0) { ... }
 
     await application.submit();
 

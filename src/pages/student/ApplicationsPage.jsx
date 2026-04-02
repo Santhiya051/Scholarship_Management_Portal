@@ -22,11 +22,13 @@ const ApplicationsPage = () => {
       const response = await applicationService.getMyApplications({
         status: filter !== 'all' ? filter : undefined,
         sort: sortBy,
-        order: sortOrder
+        order: sortOrder.toUpperCase(),
+        limit: 100
       });
-      setApplications(response.data.applications);
+      setApplications(response.data.applications || []);
     } catch (error) {
       console.error('Error fetching applications:', error);
+      setApplications([]);
     } finally {
       setLoading(false);
     }

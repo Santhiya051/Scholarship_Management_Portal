@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User, Role } = require('../models');
+const { User, Role, Student } = require('../models');
 
 // ============================
 // Verify JWT token (Required)
@@ -19,10 +19,10 @@ const authenticateToken = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findByPk(decoded.userId, {
-      include: [{
-        model: Role,
-        as: 'role'
-      }],
+      include: [
+        { model: Role, as: 'role' },
+        { model: Student, as: 'student' }
+      ],
       attributes: { exclude: ['password'] }
     });
 
@@ -120,10 +120,10 @@ const optionalAuth = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       const user = await User.findByPk(decoded.userId, {
-        include: [{
-          model: Role,
-          as: 'role'
-        }],
+        include: [
+          { model: Role, as: 'role' },
+          { model: Student, as: 'student' }
+        ],
         attributes: { exclude: ['password'] }
       });
 

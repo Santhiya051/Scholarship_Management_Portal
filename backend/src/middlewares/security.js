@@ -25,7 +25,7 @@ const createRateLimit = (windowMs, max, message) => {
 // General API rate limiting
 const generalLimiter = createRateLimit(
   15 * 60 * 1000, // 15 minutes
-  parseInt(process.env.RATE_LIMIT_MAX) || 100, // limit each IP to 100 requests per windowMs
+  parseInt(process.env.RATE_LIMIT_MAX) || 500, // 500 requests per window (was 100, too low for dev)
   'Too many requests from this IP, please try again later.'
 );
 

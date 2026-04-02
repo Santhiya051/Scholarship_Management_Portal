@@ -39,12 +39,32 @@ const ScholarshipsManagement = () => {
   const fetchScholarships = async () => {
     try {
       setLoading(true);
-      const response = await adminService.getAllScholarshipsAdmin();
-      // Ensure we always have an array
-      setScholarships(Array.isArray(response.data) ? response.data : response.scholarships || []);
+      const response = await adminService.getAllScholarshipsAdmin({ limit: 50 });
+      console.log('Scholarships API response:', response); // Debug log
+      
+      // The response structure is: { success: true, data: { scholarships: [], pagination: {} } }
+      let scholarshipsData = [];
+      
+      if (response.data && response.data.scholarships) {
+        // Response from /scholarships endpoint
+        scholarshipsData = response.data.scholarships;
+      } else if (Array.isArray(response.data)) {
+        // Response from /admin/scholarships endpoint
+        scholarshipsData = response.data;
+      } else if (Array.isArray(response.scholarships)) {
+        // Fallback
+        scholarshipsData = response.scholarships;
+      }
+      
+      console.log('Scholarships data:', scholarshipsData.length, 'scholarships'); // Debug log
+      setScholarships(scholarshipsData);
+      
+      if (scholarshipsData.length === 0) {
+        toast.info('No scholarships found');
+      }
     } catch (error) {
-      toast.error('Failed to fetch scholarships');
       console.error('Error fetching scholarships:', error);
+      toast.error(error.message || 'Failed to fetch scholarships');
       setScholarships([]); // Set empty array on error
     } finally {
       setLoading(false);

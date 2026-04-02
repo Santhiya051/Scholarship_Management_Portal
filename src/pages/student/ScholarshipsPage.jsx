@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { scholarshipService } from '../../services/scholarshipService';
-import { Search, Filter, Calendar, DollarSign, Users, Award, Clock } from 'lucide-react';
+import { applicationService } from '../../services/applicationService';
+import { useAuth } from '../../context/AuthContext';
+import { Search, Filter, Calendar, DollarSign, Users, Award, Clock, CheckCircle } from 'lucide-react';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import StatusBadge from '../../components/common/StatusBadge';
 
 const ScholarshipsPage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [scholarships, setScholarships] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [applying, setApplying] = useState(null); // scholarship id being applied to
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     department: '',
@@ -25,14 +30,19 @@ const ScholarshipsPage = () => {
     try {
       setLoading(true);
       const response = await scholarshipService.getScholarships({
-        search: searchTerm,
-        ...filters,
+        search: searchTerm || undefined,
+        department: filters.department || undefined,
+        status: filters.status || undefined,
+        min_amount: filters.minAmount || undefined,
+        max_amount: filters.maxAmount || undefined,
         page: 1,
-        limit: 20
+        limit: 50
       });
-      setScholarships(response.data.scholarships);
+      const scholarshipsData = response.data?.scholarships || [];
+      setScholarships(scholarshipsData);
     } catch (error) {
       console.error('Error fetching scholarships:', error);
+      setScholarships([]);
     } finally {
       setLoading(false);
     }
@@ -61,9 +71,34 @@ const ScholarshipsPage = () => {
   };
 
   const isEligible = (scholarship) => {
-    // This would normally check against user's profile
-    // For now, we'll assume all active scholarships are eligible
     return scholarship.status === 'active';
+  };
+
+  const handleApply = async (scholarship) => {
+    setApplying(scholarship.id);
+    try {
+      const response = await applicationService.createApplication({
+        scholarship_id: scholarship.id,
+        personal_info: {
+          first_name: user?.first_name || '',
+          last_name: user?.last_name || '',
+          email: user?.email || '',
+          phone: user?.phone || ''
+        },
+        academic_info: {
+          student_id: user?.student?.student_id || '',
+          gpa: user?.student?.gpa || 0,
+          major: user?.student?.major || '',
+          year_of_study: user?.student?.year_of_study || 1
+        }
+      });
+      navigate(`/applications/${response.data.application.id}/edit`);
+    } catch (error) {
+      console.error('Error creating application:', error);
+      alert(error.message || 'Failed to start application. Please try again.');
+    } finally {
+      setApplying(null);
+    }
   };
 
   const getDaysUntilDeadline = (deadline) => {
@@ -261,13 +296,19 @@ const ScholarshipsPage = () => {
                   >
                     View Details
                   </Link>
-                  {eligible && daysLeft > 0 && (
-                    <Link
-                      to={`/scholarships/${scholarship.id}/apply`}
+                  {scholarship.has_applied ? (
+                    <span className="flex items-center text-xs text-green-600 font-medium px-3 py-1 bg-green-50 border border-green-200 rounded">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Applied ({scholarship.application_status})
+                    </span>
+                  ) : eligible && daysLeft > 0 && (
+                    <button
+                      onClick={() => handleApply(scholarship)}
+                      disabled={applying === scholarship.id}
                       className="btn-primary text-sm px-3 py-1"
                     >
-                      Apply Now
-                    </Link>
+                      {applying === scholarship.id ? 'Starting...' : 'Apply Now'}
+                    </button>
                   )}
                 </div>
               </div>

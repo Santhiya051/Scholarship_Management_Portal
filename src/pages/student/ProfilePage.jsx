@@ -258,7 +258,7 @@ const ProfilePage = () => {
                     />
                   ) : (
                     <p className="text-academic-900">
-                      {profile.student.gpa ? profile.student.gpa.toFixed(2) : 'Not provided'}
+                      {profile.student.gpa != null ? parseFloat(profile.student.gpa).toFixed(2) : 'Not provided'}
                     </p>
                   )}
                 </div>

@@ -100,12 +100,9 @@ const initializeApp = async () => {
     await testConnection();
     console.log('✅ Database connected successfully');
     
-    // Sync database models (only in development)
-    if (process.env.NODE_ENV === 'development') {
-      const { sequelize } = require('./models');
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database models synchronized');
-    }
+    // NOTE: sequelize.sync({ alter: true }) is intentionally disabled.
+    // It rewrites table columns on every restart which causes schema drift,
+    // slow startups, and data loss in edge cases. Use migrations instead.
     
     return app;
   } catch (error) {

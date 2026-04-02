@@ -106,8 +106,11 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   Student.prototype.isEligibleForScholarship = function(scholarship) {
-    // Basic eligibility check - can be extended
-    if (scholarship.min_gpa && this.gpa < scholarship.min_gpa) {
+    // Parse GPA as float since DECIMAL comes back as string from Postgres
+    const studentGpa = parseFloat(this.gpa) || 0;
+    const minGpa = parseFloat(scholarship.min_gpa) || 0;
+
+    if (minGpa > 0 && studentGpa < minGpa) {
       return false;
     }
     
@@ -116,7 +119,7 @@ module.exports = (sequelize, DataTypes) => {
       return false;
     }
     
-    if (scholarship.year_of_study && 
+    if (scholarship.year_of_study && scholarship.year_of_study.length > 0 &&
         !scholarship.year_of_study.includes(this.year_of_study)) {
       return false;
     }
